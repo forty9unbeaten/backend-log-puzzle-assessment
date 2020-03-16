@@ -16,6 +16,8 @@ Here's what a puzzle url looks like:
 
 """
 
+__author__ = 'Rob Spears (GitHub: Forty9Unbeaten)'
+
 import os
 import re
 import sys
@@ -28,8 +30,23 @@ def read_urls(filename):
     extracting the hostname from the filename itself.
     Screens out duplicate urls and returns the urls sorted into
     increasing order."""
-    # +++your code here+++
-    pass
+
+    # Regular expression matches any string of non-whitespace
+    # characters that ends in ".jpg"
+    img_file_regex = r'\S*\.jpg'
+    server_name = 'http://{}'.format(filename.split('_')[1])
+
+    with open(filename, 'r') as f:
+        log_content = f.read()
+
+    # find all image urls in log file, eliminate duplicates and
+    # sort in order
+    img_urls = sorted(set(re.findall(img_file_regex, log_content)))
+
+    # concat server name with image url to create full URI
+    img_urls = [server_name + img_url for img_url in img_urls]
+
+    return img_urls
 
 
 def download_images(img_urls, dest_dir):
@@ -47,7 +64,8 @@ def download_images(img_urls, dest_dir):
 def create_parser():
     """Create an argument parser object"""
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--todir',  help='destination directory for downloaded images')
+    parser.add_argument(
+        '-d', '--todir',  help='destination directory for downloaded images')
     parser.add_argument('logfile', help='apache logfile to extract urls from')
 
     return parser
