@@ -41,14 +41,32 @@ def read_urls(filename):
     # Regular expression matches any string of non-whitespace
     # characters that ends in ".jpg"
     img_file_regex = r'\S*\.jpg'
+
+    # Regular expression to determine if custom sorting is needed
+    custom_img_regex = r'-\w*-\w*\.jpg'
+
     server_name = 'http://{}'.format(filename.split('_')[1])
 
     with open(filename, 'r') as f:
         log_content = f.read()
 
     # find all image urls in log file, eliminate duplicates and
+    # sort in order, accounting for custom sorting need defined
+    # in part C of assignment
+    img_urls = re.findall(img_file_regex, log_content)
+    need_custom_sort = re.search(custom_img_regex, log_content)
+
+    if need_custom_sort:
+        def custom_sort(url):
+            url = url.split('-')
+            return url[-1]
+        img_urls = filter(lambda x: re.search(custom_img_regex, x), img_urls)
+        img_urls = sorted(set(img_urls), key=custom_sort)
+    else:
+        img_urls = sorted(set(img_urls))
+
+    # find all image urls in log file, eliminate duplicates and
     # sort in order
-    img_urls = sorted(set(re.findall(img_file_regex, log_content)))
 
     # concat server name with image url to create full URL
     img_urls = [server_name + img_url for img_url in img_urls]
