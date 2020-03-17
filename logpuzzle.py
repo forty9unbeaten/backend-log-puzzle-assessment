@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """
 Logpuzzle exercise
 
@@ -16,13 +16,20 @@ Here's what a puzzle url looks like:
 
 """
 
+
 __author__ = 'Rob Spears (GitHub: Forty9Unbeaten)'
 
 import os
 import re
 import sys
-import urllib
 import argparse
+import webbrowser
+
+if sys.version_info[0] < 3:
+    print('\n\tGotta use Python 3 for this one...\n')
+    sys.exit(1)
+else:
+    import urllib.request
 
 
 def read_urls(filename):
@@ -43,7 +50,7 @@ def read_urls(filename):
     # sort in order
     img_urls = sorted(set(re.findall(img_file_regex, log_content)))
 
-    # concat server name with image url to create full URI
+    # concat server name with image url to create full URL
     img_urls = [server_name + img_url for img_url in img_urls]
 
     return img_urls
@@ -57,8 +64,50 @@ def download_images(img_urls, dest_dir):
     with an img tag to show each local image file.
     Creates the directory if necessary.
     """
-    # +++your code here+++
-    pass
+    path = os.path.abspath(dest_dir)
+
+    # Create specified folder to store downloaded images
+    try:
+        os.makedirs(path)
+        print('\n\t{} folder created at {}\n'.format(dest_dir, path))
+    except FileExistsError:
+        pass
+    except Exception as e:
+        print(e)
+
+    # download image files at each URL, store them in created
+    # directory and append them to a list that serves as the
+    # html <img> tags
+    img_tags = []
+    for i, url in enumerate(img_urls):
+        try:
+            response = urllib.request.urlretrieve(
+                url, filename='{}/img{}.jpg'.format(path, i))
+            filename = response[0]
+            img_tags.append('<img src="{}">'.format(filename))
+        except FileExistsError:
+            pass
+        except Exception as e:
+            print('\n\tError: {}'.format(e))
+
+    # create index.html file and write html
+    full_html = ['<html>', '<body>', ''.join(img_tags), '</body>', '</html>']
+    index_file_path = '{}/index.html'.format(path)
+    with open(index_file_path, 'w') as f:
+        for tag in full_html:
+            f.write('{}\n'.format(tag))
+
+    # prompt for viewing of html file
+    user_resp = input(
+        '\tAll images have been downloaded successfully.' +
+        'Would you like to see the picture?\n\tY/N:')
+
+    # open index.html in new browser tab
+    if user_resp.strip().lower() == 'y':
+        webpage = 'file://{}'.format(index_file_path)
+        webbrowser.open(webpage, new=2)
+    else:
+        print('\n\tindex.html file location:\t{}'.format(index_file_path))
 
 
 def create_parser():
