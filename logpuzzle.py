@@ -65,9 +65,6 @@ def read_urls(filename):
     else:
         img_urls = sorted(set(img_urls))
 
-    # find all image urls in log file, eliminate duplicates and
-    # sort in order
-
     # concat server name with image url to create full URL
     img_urls = [server_name + img_url for img_url in img_urls]
 
