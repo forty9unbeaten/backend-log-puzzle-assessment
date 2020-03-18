@@ -97,6 +97,7 @@ def download_images(img_urls, dest_dir):
     # directory and append them to a list that serves as the
     # html <img> tags
     img_tags = []
+    print('\tLoading...\n')
     for i, url in enumerate(img_urls):
         try:
             response = urllib.request.urlretrieve(
@@ -107,6 +108,7 @@ def download_images(img_urls, dest_dir):
             pass
         except Exception as e:
             print('\n\tError: {}'.format(e))
+    print('\tDone!\n')
 
     # create index.html file and write html
     full_html = ['<html>', '<body>', ''.join(img_tags), '</body>', '</html>']
